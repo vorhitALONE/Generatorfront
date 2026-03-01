@@ -18,38 +18,44 @@ export default function Page() {
   const [adminUsername, setAdminUsername] = useState("");
   const [adminPassword, setAdminPassword] = useState("");
   const [newValues, setNewValues] = useState("");
-  const [authToken, setAuthToken] = useState(
-    typeof window !== "undefined" ? localStorage.getItem("adminToken") : null
-  );
+  const [authToken, setAuthToken] = useState(null);
 
-  // UI controls (декоративно, как в дизайне)
+  // UI controls (как в оригинале)
   const [seqCount, setSeqCount] = useState(1);
   const [sourceMode, setSourceMode] = useState("range");
   const [rangeFrom, setRangeFrom] = useState("1");
   const [rangeTo, setRangeTo] = useState("100");
+  const [excludeEnabled, setExcludeEnabled] = useState(false);
   const [exclude, setExclude] = useState("");
 
   const shownNumber = useMemo(() => {
-    if (generatedValue !== null) return generatedValue;
-    if (activeValue !== null) return activeValue;
+    if (generatedValue !== null) return String(generatedValue);
+    if (activeValue !== null) return String(activeValue);
     return "";
   }, [generatedValue, activeValue]);
 
   useEffect(() => {
+    const token = localStorage.getItem("adminToken");
+    if (token) setAuthToken(token);
+
     fetchActiveValue();
     fetchHistory();
+  }, []);
+
+  useEffect(() => {
     if (authToken) checkAdminSession();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [authToken]);
 
   const checkAdminSession = async () => {
     try {
       const response = await fetch(`${API_URL}/api/admin/check`, {
-        headers: { Authorization: `Bearer ${authToken}` }
+        headers: { Authorization: `Bearer ${authToken}` },
       });
       const data = await response.json();
-      setIsAdmin(Boolean(data.authenticated));
-      if (!data.authenticated) {
+      const ok = Boolean(data.authenticated);
+      setIsAdmin(ok);
+      if (!ok) {
         localStorage.removeItem("adminToken");
         setAuthToken(null);
       }
@@ -61,21 +67,21 @@ export default function Page() {
 
   const fetchActiveValue = async () => {
     try {
-      const response = await fetch(`${API_URL}/api/active`);
+      const response = await fetch(`${API_URL}/api/active`, { cache: "no-store" });
       const data = await response.json();
       setActiveValue(data.value);
     } catch {
-      setError("Ошибка загрузки данных");
+      // не ломаем UI
     }
   };
 
   const fetchHistory = async () => {
     try {
-      const response = await fetch(`${API_URL}/api/history`);
+      const response = await fetch(`${API_URL}/api/history`, { cache: "no-store" });
       const data = await response.json();
       setHistory(Array.isArray(data) ? data : []);
     } catch {
-      // optional
+      // ignore
     }
   };
 
@@ -91,14 +97,14 @@ export default function Page() {
           sourceMode,
           rangeFrom,
           rangeTo,
-          exclude
-        })
+          exclude: excludeEnabled ? exclude : "",
+        }),
       });
-      if (!response.ok) throw new Error("Не удалось сгенерировать число");
       const data = await response.json();
+      if (!response.ok) throw new Error(data?.error || "Не удалось сгенерировать");
       setGeneratedValue(data.value);
-      fetchHistory();
-      fetchActiveValue();
+      await fetchHistory();
+      await fetchActiveValue();
     } catch (e) {
       setError(e?.message || "Ошибка");
     } finally {
@@ -114,10 +120,11 @@ export default function Page() {
       const response = await fetch(`${API_URL}/api/admin/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username: adminUsername, password: adminPassword })
+        body: JSON.stringify({ username: adminUsername, password: adminPassword }),
       });
       const data = await response.json();
-      if (!response.ok) throw new Error(data.error || "Неверные данные");
+      if (!response.ok) throw new Error(data?.error || "Неверные данные");
+
       localStorage.setItem("adminToken", data.token);
       setAuthToken(data.token);
       setIsAdmin(true);
@@ -134,7 +141,7 @@ export default function Page() {
     try {
       await fetch(`${API_URL}/api/admin/logout`, {
         method: "POST",
-        headers: { Authorization: `Bearer ${authToken}` }
+        headers: { Authorization: `Bearer ${authToken}` },
       });
     } catch {
       // ignore
@@ -155,25 +162,25 @@ export default function Page() {
         .map((v) => v.trim())
         .filter(Boolean)
         .map((v) => parseInt(v, 10))
-        .filter((v) => !Number.isNaN(v));
+        .filter((v) => Number.isFinite(v));
 
-      if (values.length === 0) throw new Error("Введите хотя бы одно число");
+      if (!values.length) throw new Error("Введите числа (пример: 10 20 30)");
 
       const response = await fetch(`${API_URL}/api/admin/active`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${authToken}`
+          Authorization: `Bearer ${authToken}`,
         },
-        body: JSON.stringify({ values })
+        body: JSON.stringify({ values }),
       });
 
       const data = await response.json();
-      if (!response.ok) throw new Error(data.error || "Не удалось установить значения");
+      if (!response.ok) throw new Error(data?.error || "Не удалось сохранить");
 
-      setActiveValue(data.nextValue);
       setNewValues("");
-      fetchHistory();
+      await fetchActiveValue();
+      await fetchHistory();
     } catch (e2) {
       setError(e2?.message || "Ошибка");
     } finally {
@@ -182,200 +189,190 @@ export default function Page() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col text-[#333]">
-      <header className="header-bg w-full h-[85px] relative z-10">
-        <div className="max-w-[980px] mx-auto h-full flex items-start px-2">
-          <div className="logo-ribbon w-[110px] h-[95px] flex items-center justify-center rounded-b-md mr-6 relative top-[-5px]">
-            <button
-              type="button"
-              onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-              className="text-[#222] font-['Lobster'] text-3xl no-underline transform -rotate-3 mt-2"
-            >
-              RandStuff
-            </button>
+    <>
+      {/* NAVBAR */}
+      <header className="topbar">
+        <div className="topbar-inner">
+          <div className="brand">
+            <div className="brand-text">RandStuff</div>
           </div>
 
-          <nav className="flex-1 h-full flex items-center justify-between pt-2">
-            <a href="#" onClick={(e) => e.preventDefault()} className="menu-item active flex flex-col items-center gap-1 group w-16 text-center no-underline">
-              <div className="menu-icon text-2xl font-bold font-sans text-white">123</div>
-              <span className="menu-text text-[11px] text-white leading-tight">Числа</span>
+          <nav className="nav">
+            <a className="nav-item active" href="#" onClick={(e) => e.preventDefault()}>
+              <span className="icon">123</span>
+              Числа
             </a>
 
-            <a href="#" onClick={(e) => e.preventDefault()} className="menu-item flex flex-col items-center gap-1 group w-20 text-center no-underline text-gray-300">
-              <i className="menu-icon fa-solid fa-trophy text-xl"></i>
-              <span className="menu-text text-[11px] leading-tight">Определить<br/>победителя</span>
+            <a className="nav-item" href="#" onClick={(e) => e.preventDefault()}>
+              <span className="icon"><i className="fa-solid fa-trophy"></i></span>
+              Определить<br />победителя
             </a>
 
-            <a href="#" onClick={(e) => e.preventDefault()} className="menu-item flex flex-col items-center gap-1 group w-16 text-center no-underline text-gray-300">
-              <div className="menu-icon text-xl font-bold tracking-widest">***</div>
-              <span className="menu-text text-[11px] leading-tight">Пароли</span>
+            <a className="nav-item" href="#" onClick={(e) => e.preventDefault()}>
+              <span className="icon">***</span>
+              Пароли
             </a>
 
-            <a href="#" onClick={(e) => e.preventDefault()} className="menu-item flex flex-col items-center gap-1 group w-16 text-center no-underline text-gray-300">
-              <i className="menu-icon fa-solid fa-dharmachakra text-xl"></i>
-              <span className="menu-text text-[11px] leading-tight">Колесо<br/>фортуны</span>
+            <a className="nav-item" href="#" onClick={(e) => e.preventDefault()}>
+              <span className="icon"><i className="fa-solid fa-dharmachakra"></i></span>
+              Колесо<br />фортуны
             </a>
 
-            <a href="#" onClick={(e) => e.preventDefault()} className="menu-item flex flex-col items-center gap-1 group w-16 text-center no-underline text-gray-300">
-              <div className="menu-icon text-xl font-bold">???</div>
-              <span className="menu-text text-[11px] leading-tight">Вопросы</span>
+            <a className="nav-item" href="#" onClick={(e) => e.preventDefault()}>
+              <span className="icon">???</span>
+              Вопросы
             </a>
 
-            <a href="#" onClick={(e) => e.preventDefault()} className="menu-item flex flex-col items-center gap-1 group w-20 text-center no-underline text-gray-300">
-              <i className="menu-icon fa-solid fa-ticket text-xl"></i>
-              <span className="menu-text text-[11px] leading-tight">Счастливые<br/>билеты</span>
+            <a className="nav-item" href="#" onClick={(e) => e.preventDefault()}>
+              <span className="icon"><i className="fa-solid fa-ticket"></i></span>
+              Счастливые<br />билеты
             </a>
 
-            <a href="#" onClick={(e) => e.preventDefault()} className="menu-item flex flex-col items-center gap-1 group w-16 text-center no-underline text-gray-300">
-              <i className="menu-icon fa-solid fa-scroll text-xl"></i>
-              <span className="menu-text text-[11px] leading-tight">Мудрости</span>
+            <a className="nav-item" href="#" onClick={(e) => e.preventDefault()}>
+              <span className="icon"><i className="fa-solid fa-scroll"></i></span>
+              Мудрости
             </a>
 
-            <a href="#" onClick={(e) => e.preventDefault()} className="menu-item flex flex-col items-center gap-1 group w-20 text-center no-underline text-gray-300">
-              <span className="menu-icon fa-stack" style={{ fontSize: "0.7rem" }}>
-                <i className="fa-solid fa-circle fa-stack-2x"></i>
-                <i className="fa-solid fa-8 fa-stack-1x fa-inverse"></i>
-              </span>
-              <span className="menu-text text-[11px] leading-tight mt-1">Ответы и<br/>предсказания</span>
+            <a className="nav-item" href="#" onClick={(e) => e.preventDefault()}>
+              <span className="icon"><i className="fa-solid fa-circle-question"></i></span>
+              Ответы и<br />предсказания
             </a>
-
-            <button
-              type="button"
-              onClick={() => setShowAdminModal(true)}
-              className="text-gray-200 text-[12px] px-2 py-1 rounded hover:text-[#ffcc00]"
-              title="Админ"
-            >
-              <i className="fa-solid fa-user-gear mr-1"></i>
-              Админ
-            </button>
           </nav>
+
+          {/* кнопка админа справа (точно кликается) */}
+          <button
+            type="button"
+            className="admin-btn"
+            onClick={() => setShowAdminModal(true)}
+          >
+            <i className="fa-solid fa-user-gear" style={{ marginRight: 6 }}></i>
+            Админ
+          </button>
         </div>
       </header>
 
-      <main className="flex-1 w-full max-w-[980px] mx-auto pt-12 pb-10 text-center px-3">
-        <h1 className="text-[32px] text-black mb-2 font-normal">Случайное число:</h1>
+      {/* MAIN */}
+      <main className="main-wrap">
+        <div className="big-title">Случайное число:</div>
+        <div className="big-number">{shownNumber || "0"}</div>
 
-        <div className="text-[160px] leading-none font-normal text-black mb-4 tracking-tighter">
-          {shownNumber}
+        <div className="small-links">
+          <div><a className="link-red" href="#" onClick={(e) => e.preventDefault()}>Проводите розыгрыш во ВКонтакте?</a></div>
+          <div><a className="link-red" href="#" onClick={(e) => e.preventDefault()}>Мы поможем определить победителя!</a></div>
         </div>
 
-        <div className="mb-8">
-          <a href="#" onClick={(e) => e.preventDefault()} className="link-dashed text-[13px]">
-            Проводите розыгрыш во ВКонтакте?
-          </a>
-          <br />
-          <a href="#" onClick={(e) => e.preventDefault()} className="link-dashed text-[13px]">
-            Мы поможем определить победителя!
-          </a>
-        </div>
+        <button className="btn-generate" disabled={loading} onClick={handleGenerate}>
+          {loading ? "..." : "Сгенерировать"}
+        </button>
 
-        <div className="flex justify-center mb-6">
-          <button
-            className="btn-generate text-[#222] text-[36px] font-bold px-12 py-2 rounded-lg select-none w-[340px]"
-            onClick={handleGenerate}
-            disabled={loading}
-          >
-            {loading ? "Генерация..." : "Сгенерировать"}
-          </button>
-        </div>
+        <div className="controls">
+          <div style={{ marginTop: 18, color: "#666" }}>новую последовательность из</div>
+          <input
+            className="range"
+            type="range"
+            min="1"
+            max="50"
+            value={seqCount}
+            onChange={(e) => setSeqCount(parseInt(e.target.value, 10))}
+          />
+          <div style={{ marginTop: 6 }}>{seqCount} случайного числа</div>
 
-        <div className="flex flex-col items-center gap-3 text-[13px] text-[#333]">
-          <div className="w-[300px] text-center">
-            <div className="text-gray-600 mb-1">новую последовательность из</div>
-            <input type="range" min="1" max="50" value={seqCount}
-              onChange={(e) => setSeqCount(parseInt(e.target.value, 10))}
-              className="w-full mb-1"
-            />
-            <div className="text-black">
-              {seqCount} случайного{seqCount === 1 ? " числа" : " чисел"}
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2 mt-1">
-            <label className="flex items-center gap-1 cursor-pointer">
-              <input type="radio" name="source" checked={sourceMode === "range"}
-                onChange={() => setSourceMode("range")} className="accent-[#cc0000]"
-              />
-              <span className="link-dashed border-b border-dashed border-black text-black hover:border-solid">
-                из диапазона
-              </span>
+          <div style={{ marginTop: 10 }}>
+            <label style={{ marginRight: 8 }}>
+              <input
+                type="radio"
+                name="src"
+                checked={sourceMode === "range"}
+                onChange={() => setSourceMode("range")}
+              />{" "}
+              <span className="link-red" style={{ borderBottomColor: "#000", color: "#000" }}>из диапазона</span>
             </label>
-
-            <span className="text-gray-500">или</span>
-
-            <label className="flex items-center gap-1 cursor-pointer">
-              <input type="radio" name="source" checked={sourceMode === "list"}
-                onChange={() => setSourceMode("list")} className="accent-[#cc0000]"
-              />
-              <span className="text-black">из списка</span>
+            <span style={{ color: "#888" }}>или</span>
+            <label style={{ marginLeft: 8 }}>
+              <input
+                type="radio"
+                name="src"
+                checked={sourceMode === "list"}
+                onChange={() => setSourceMode("list")}
+              />{" "}
+              из списка
             </label>
           </div>
 
-          <div className="flex items-center gap-2 mt-1">
-            <span>от</span>
-            <input className="input-classic w-16 px-1 py-0.5 rounded-[3px] text-center bg-white focus:outline-none focus:border-gray-500"
-              value={rangeFrom} onChange={(e) => setRangeFrom(e.target.value)}
-            />
-            <span>до</span>
-            <input className="input-classic w-16 px-1 py-0.5 rounded-[3px] text-center bg-white focus:outline-none focus:border-gray-500"
-              value={rangeTo} onChange={(e) => setRangeTo(e.target.value)}
-            />
+          <div style={{ marginTop: 10 }}>
+            от{" "}
+            <input className="input" value={rangeFrom} onChange={(e) => setRangeFrom(e.target.value)} />
+            {" "}до{" "}
+            <input className="input" value={rangeTo} onChange={(e) => setRangeTo(e.target.value)} />
           </div>
 
-          <div className="flex items-center gap-2 mt-1">
-            <span>исключить числа</span>
-            <input className="input-classic w-[220px] px-2 py-0.5 rounded-[3px] bg-white focus:outline-none focus:border-gray-500"
-              value={exclude} onChange={(e) => setExclude(e.target.value)}
-              placeholder="например: 3, 7, 15"
-            />
+          <div style={{ marginTop: 10 }}>
+            <label>
+              <input
+                type="checkbox"
+                checked={excludeEnabled}
+                onChange={(e) => setExcludeEnabled(e.target.checked)}
+              />{" "}
+              исключить числа
+            </label>
           </div>
 
-          {error && <div className="alert mt-2 w-full max-w-[520px] mx-auto">{error}</div>}
+          {excludeEnabled && (
+            <div style={{ marginTop: 8 }}>
+              <input
+                className="input"
+                style={{ width: 220, textAlign: "left" }}
+                placeholder="например: 3, 7, 15"
+                value={exclude}
+                onChange={(e) => setExclude(e.target.value)}
+              />
+            </div>
+          )}
+
+          {error && <div className="alert" style={{ maxWidth: 520, margin: "14px auto 0" }}>{error}</div>}
         </div>
 
-        <div className="max-w-[980px] mx-auto mt-10 text-left">
-          <div className="history-box p-4">
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="text-[16px] font-bold text-[#222]">История генераций</h3>
-              <button type="button" className="text-[12px] link-dashed" onClick={fetchHistory}>
-                обновить
-              </button>
-            </div>
+        {/* history */}
+        <div className="history-box">
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <div style={{ fontWeight: 700 }}>История генераций</div>
+            <button className="link-red" style={{ background: "transparent", border: 0, cursor: "pointer" }} onClick={fetchHistory}>
+              обновить
+            </button>
+          </div>
 
-            <div className="max-h-[280px] overflow-auto">
-              {history?.length ? (
-                history.map((item, idx) => (
-                  <div key={idx} className="flex items-center justify-between gap-3 py-2 border-b border-black/10 text-[13px]">
-                    <div className="font-bold text-[#222] w-[90px]">{item.value}</div>
-                    <div className="text-gray-700 w-[110px]">
-                      {item.actor === "admin" ? "Админ" : "Пользователь"}
-                    </div>
-                    <div className="text-gray-600 flex-1 text-right">
-                      {item.timestamp ? new Date(item.timestamp).toLocaleString("ru-RU") : ""}
-                    </div>
+          <div style={{ marginTop: 10, color: "#666", fontSize: 13 }}>
+            {history?.length ? (
+              history.slice(0, 50).map((h, i) => (
+                <div key={i} style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", borderBottom: "1px solid rgba(0,0,0,0.08)" }}>
+                  <div style={{ width: 90, fontWeight: 700, color: "#222" }}>{h.value}</div>
+                  <div style={{ width: 120, color: "#444" }}>{h.actor === "admin" ? "Админ" : "Пользователь"}</div>
+                  <div style={{ flex: 1, textAlign: "right" }}>
+                    {h.timestamp ? new Date(h.timestamp).toLocaleString("ru-RU") : ""}
                   </div>
-                ))
-              ) : (
-                <div className="text-gray-600 text-[13px] py-2">История пуста</div>
-              )}
-            </div>
+                </div>
+              ))
+            ) : (
+              <div>История пуста</div>
+            )}
           </div>
         </div>
       </main>
 
+      {/* ADMIN MODAL */}
       {showAdminModal && (
         <div className="modal-backdrop" onMouseDown={() => setShowAdminModal(false)}>
           <div className="modal" onMouseDown={(e) => e.stopPropagation()}>
             <div className="modal-header">
-              <div className="font-bold">
-                <i className="fa-solid fa-user-gear mr-2"></i>
+              <div style={{ fontWeight: 700 }}>
+                <i className="fa-solid fa-user-gear" style={{ marginRight: 8 }}></i>
                 Администрирование
               </div>
               <button
-                className="text-white/90 hover:text-white"
-                onClick={() => setShowAdminModal(false)}
                 type="button"
-                aria-label="Закрыть"
+                onClick={() => setShowAdminModal(false)}
+                style={{ background: "transparent", border: 0, color: "#fff", cursor: "pointer", fontSize: 18 }}
+                aria-label="close"
               >
                 ✕
               </button>
@@ -383,60 +380,51 @@ export default function Page() {
 
             <div className="modal-body">
               {!isAdmin ? (
-                <form onSubmit={handleAdminLogin} className="space-y-3">
-                  <div className="text-[13px] text-gray-700">Вход в панель администратора</div>
+                <form onSubmit={handleAdminLogin} style={{ display: "grid", gap: 10 }}>
+                  <div style={{ color: "#666", fontSize: 13 }}>Вход в панель администратора</div>
 
-                  <input className="input-classic w-full px-2 py-2 rounded" placeholder="Логин"
-                    value={adminUsername} onChange={(e) => setAdminUsername(e.target.value)} required
-                  />
-                  <input className="input-classic w-full px-2 py-2 rounded" placeholder="Пароль" type="password"
-                    value={adminPassword} onChange={(e) => setAdminPassword(e.target.value)} required
-                  />
+                  <input className="field" placeholder="Логин" value={adminUsername} onChange={(e) => setAdminUsername(e.target.value)} />
+                  <input className="field" placeholder="Пароль" type="password" value={adminPassword} onChange={(e) => setAdminPassword(e.target.value)} />
 
-                  <button className="small-btn w-full" disabled={loading} type="submit">
-                    {loading ? "Вход..." : "Войти"}
+                  <button className="small-btn" type="submit" disabled={loading}>
+                    {loading ? "..." : "Войти"}
                   </button>
                 </form>
               ) : (
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <div className="font-bold text-[#222]">Панель администратора</div>
-                    <button className="danger-btn" type="button" onClick={handleAdminLogout}>
-                      Выйти
-                    </button>
+                <div style={{ display: "grid", gap: 12 }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <div style={{ fontWeight: 700, color: "#222" }}>Панель администратора</div>
+                    <button className="danger-btn" type="button" onClick={handleAdminLogout}>Выйти</button>
                   </div>
 
-                  <form onSubmit={handleSetValues} className="space-y-2">
-                    <div className="text-[13px] text-gray-700">
+                  <form onSubmit={handleSetValues} style={{ display: "grid", gap: 10 }}>
+                    <div style={{ color: "#666", fontSize: 13 }}>
                       Установить серию чисел (пробел/запятая/новая строка)
                     </div>
 
-                    <textarea className="input-classic w-full px-2 py-2 rounded" rows={4}
-                      value={newValues} onChange={(e) => setNewValues(e.target.value)}
-                      placeholder="Например: 10 20 30 40" required
+                    <textarea
+                      className="field"
+                      rows={4}
+                      placeholder="Например: 10 20 30 40"
+                      value={newValues}
+                      onChange={(e) => setNewValues(e.target.value)}
                     />
 
-                    <button className="small-btn w-full" disabled={loading} type="submit">
-                      {loading ? "Сохранение..." : "Добавить серию"}
+                    <button className="small-btn" type="submit" disabled={loading}>
+                      {loading ? "..." : "Сохранить"}
                     </button>
                   </form>
                 </div>
               )}
-<div className="big-number">
-  {shownNumber || "0"}
-</div>
-              {error && <div className="alert mt-3">{error}</div>}
-              <div className="text-[12px] text-gray-600 mt-3">
-                API: <span className="font-mono">{API_URL}</span>
+
+              {error && <div className="alert" style={{ marginTop: 12 }}>{error}</div>}
+              <div style={{ marginTop: 12, fontSize: 12, color: "#777" }}>
+                API: <span style={{ fontFamily: "monospace" }}>{API_URL}</span>
               </div>
             </div>
           </div>
         </div>
       )}
-
-      <footer className="py-6 text-center text-[12px] text-gray-600">
-        Next.js UI · работает с твоим backend
-      </footer>
-    </div>
+    </>
   );
 }
