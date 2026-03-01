@@ -1,118 +1,195 @@
 /* app/globals.css */
-
-/* фон как в оригинале: светлый центр + виньетка */
-html, body {
-  height: 100%;
-}
+html, body { height: 100%; }
 body {
   margin: 0;
   font-family: Arial, Helvetica, sans-serif;
+
+  /* фон страницы как на оригинале: светлый центр + мелкий шум */
   background:
-    radial-gradient(circle at 50% 30%, #ffffff 0%, #f3f3f3 40%, #e1e1e1 100%);
+    radial-gradient(circle at 50% 25%, #ffffff 0%, #f2f2f2 45%, #e0e0e0 100%),
+    url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.08'/%3E%3C/svg%3E");
 }
 
-/* верхняя панель */
-.header-bg {
-  height: 44px;
-  background: linear-gradient(#3b3b3b, #1f1f1f);
-  box-shadow: 0 2px 6px rgba(0,0,0,0.35);
+/* ===== NAVBAR как на скрине ===== */
+.topbar {
+  height: 58px;
+  background: linear-gradient(#4b4b4b, #2a2a2a);
+  border-bottom: 1px solid rgba(0,0,0,0.55);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.35);
+
+  /* “шумная” текстура на баре */
+  background-image:
+    linear-gradient(#4b4b4b, #2a2a2a),
+    url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.18'/%3E%3C/svg%3E");
+  background-blend-mode: overlay;
 }
 
-/* “жёлтая плашка” слева как у RandStuff */
-.logo-ribbon {
-  width: 120px;
-  height: 60px;
-  margin-top: -10px;
-  background: linear-gradient(#ffd33a, #ffb000);
-  border: 1px solid #b87a00;
+.topbar-inner {
+  max-width: 1020px;
+  margin: 0 auto;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  padding: 0 10px;
+}
+
+/* жёлтая плашка RandStuff слева */
+.brand {
+  width: 128px;
+  height: 74px;
+  margin-top: -16px; /* выступает вниз как в оригинале */
+  background: linear-gradient(#ffd84a, #ffb100);
+  border: 1px solid #b87900;
   border-top: 0;
-  box-shadow: 0 2px 0 rgba(0,0,0,0.35);
   border-bottom-left-radius: 6px;
   border-bottom-right-radius: 6px;
+  box-shadow: 0 3px 0 rgba(0,0,0,0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 5;
 }
 
-/* меню */
-.menu-item {
-  color: #cfcfcf;
+.brand-text {
+  font-family: "Lobster", cursive;
+  font-size: 30px;
+  color: #121212;
+  transform: rotate(-2deg);
+  user-select: none;
+}
+
+.nav {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  margin-left: 18px;
+  flex: 1;
+}
+
+/* пункты меню */
+.nav-item {
+  width: 70px;
   text-decoration: none;
+  text-align: center;
+  color: #d6d6d6;
+  font-size: 11px;
+  line-height: 12px;
+  user-select: none;
 }
-.menu-item .menu-icon,
-.menu-item .menu-text {
-  color: #cfcfcf;
+.nav-item .icon {
+  display: block;
+  font-size: 18px;
+  margin-bottom: 5px;
+  color: #d6d6d6;
 }
-.menu-item.active .menu-icon,
-.menu-item.active .menu-text,
-.menu-item:hover .menu-icon,
-.menu-item:hover .menu-text {
-  color: #ffcc00;
-}
+.nav-item.active { color: #ffcc00; }
+.nav-item.active .icon { color: #ffcc00; }
+.nav-item:hover { color: #ffcc00; }
+.nav-item:hover .icon { color: #ffcc00; }
 
-/* главный блок как в оригинале */
+/* кнопка админа справа — чтобы точно нажималась */
+.admin-btn {
+  background: transparent;
+  border: 0;
+  color: #e6e6e6;
+  font-size: 12px;
+  cursor: pointer;
+  padding: 6px 10px;
+  border-radius: 6px;
+  position: relative;
+  z-index: 20; /* поверх всего */
+}
+.admin-btn:hover { color: #ffcc00; }
+
+/* ===== MAIN ===== */
 .main-wrap {
-  max-width: 980px;
+  max-width: 1020px;
   margin: 0 auto;
-  padding: 40px 12px 60px;
+  padding: 40px 10px 80px;
   text-align: center;
 }
 
 .big-title {
   font-size: 30px;
-  margin: 28px 0 12px;
   color: #111;
+  margin: 22px 0 10px;
 }
 
 .big-number {
-  font-size: 140px;
+  font-size: 160px;
   line-height: 1;
-  font-weight: 700;
+  font-weight: 500;
   color: #000;
-  margin: 0 0 10px;
+  margin: 0 0 12px;
 }
 
-/* кнопка как во 2-м скрине */
-.btn-generate {
-  display: inline-block;
-  width: 320px;
-  font-size: 28px;
-  font-weight: 700;
-  color: #1b1b1b;
-  padding: 12px 18px;
-  border-radius: 6px;
-  border: 1px solid #b87a00;
-  background: linear-gradient(#ffd33a, #ffb000);
-  box-shadow: 0 6px 0 #8a5600, 0 10px 18px rgba(0,0,0,0.22);
-  text-shadow: 0 1px 0 rgba(255,255,255,0.7);
-  cursor: pointer;
-}
-.btn-generate:active {
-  transform: translateY(4px);
-  box-shadow: 0 2px 0 #8a5600, 0 6px 12px rgba(0,0,0,0.18);
-}
-.btn-generate:disabled {
-  opacity: .65;
-  cursor: not-allowed;
+.small-links {
+  margin: 6px 0 18px;
+  font-size: 13px;
 }
 
-/* поля */
-.input-classic {
-  border: 1px solid #bfbfbf;
-  border-radius: 3px;
-  padding: 2px 6px;
-  background: #fff;
-  box-shadow: inset 0 1px 2px rgba(0,0,0,0.12);
-}
-
-/* ссылки красные подчёркнутые */
-.link-dashed {
+.link-red {
   color: #cc0000;
   text-decoration: none;
   border-bottom: 1px dashed #cc0000;
 }
-.link-dashed:hover {
-  border-bottom-style: solid;
+.link-red:hover { border-bottom-style: solid; }
+
+.btn-generate {
+  width: 340px;
+  display: inline-block;
+  padding: 14px 18px;
+  font-size: 34px;
+  font-weight: 700;
+  font-family: "Lobster", cursive;
+  color: #161616;
+  cursor: pointer;
+
+  background: linear-gradient(#ffd84a, #ffb100);
+  border: 1px solid #b87900;
+  border-radius: 7px;
+  box-shadow: 0 7px 0 #8a5600, 0 12px 20px rgba(0,0,0,0.25);
+  text-shadow: 0 1px 0 rgba(255,255,255,0.7);
+}
+.btn-generate:active {
+  transform: translateY(4px);
+  box-shadow: 0 3px 0 #8a5600, 0 8px 14px rgba(0,0,0,0.22);
+}
+.btn-generate:disabled { opacity: 0.65; cursor: not-allowed; }
+
+/* контролы */
+.controls {
+  margin-top: 14px;
+  font-size: 13px;
+  color: #333;
+}
+.range {
+  width: 260px;
+}
+.input {
+  width: 70px;
+  border: 1px solid #c1c1c1;
+  border-radius: 3px;
+  padding: 2px 6px;
+  background: #fff;
+  box-shadow: inset 0 1px 2px rgba(0,0,0,0.12);
+  text-align: center;
 }
 
-/* модалка админа */
+/* history блок */
+.history-box{
+  max-width: 980px;
+  margin: 40px auto 0;
+  text-align: left;
+  background: rgba(255,255,255,0.7);
+  border: 1px solid #cfcfcf;
+  border-radius: 8px;
+  padding: 16px;
+}
+
+/* ===== MODAL (Admin) ===== */
 .modal-backdrop{
   position: fixed;
   inset: 0;
@@ -120,7 +197,7 @@ body {
   display:flex;
   align-items:center;
   justify-content:center;
-  z-index: 50;
+  z-index: 999;
   padding: 16px;
 }
 .modal{
@@ -132,7 +209,7 @@ body {
   border-radius: 8px;
 }
 .modal-header{
-  background: linear-gradient(#3b3b3b, #1f1f1f);
+  background: linear-gradient(#4b4b4b, #2a2a2a);
   color: #fff;
   padding: 10px 12px;
   display:flex;
@@ -143,21 +220,29 @@ body {
 }
 .modal-body{ padding: 14px 12px; }
 
+.field {
+  width: 100%;
+  border: 1px solid #c1c1c1;
+  border-radius: 4px;
+  padding: 10px 10px;
+  box-shadow: inset 0 1px 2px rgba(0,0,0,0.12);
+}
+
 .small-btn{
-  background: linear-gradient(#ffd33a, #ffb000);
-  border: 1px solid #b87a00;
-  padding: 8px 10px;
+  width: 100%;
+  background: linear-gradient(#ffd84a, #ffb100);
+  border: 1px solid #b87900;
+  padding: 10px 12px;
   border-radius: 6px;
   font-weight: 700;
   color: #222;
   cursor: pointer;
-  width: 100%;
 }
 .danger-btn{
   background: #d22;
   border: 1px solid #a00;
   color: #fff;
-  padding: 6px 10px;
+  padding: 7px 10px;
   border-radius: 6px;
   font-weight: 700;
   cursor: pointer;
