@@ -32,7 +32,7 @@ export default function Page() {
   const shownNumber = useMemo(() => {
     if (generatedValue !== null) return generatedValue;
     if (activeValue !== null) return activeValue;
-    return "—";
+    return "";
   }, [generatedValue, activeValue]);
 
   useEffect(() => {
@@ -422,7 +422,9 @@ export default function Page() {
                   </form>
                 </div>
               )}
-
+<div className="big-number">
+  {shownNumber || "0"}
+</div>
               {error && <div className="alert mt-3">{error}</div>}
               <div className="text-[12px] text-gray-600 mt-3">
                 API: <span className="font-mono">{API_URL}</span>
