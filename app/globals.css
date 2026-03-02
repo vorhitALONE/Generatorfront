@@ -1,29 +1,23 @@
-/* app/globals.css */
 html, body { height: 100%; }
 body {
   margin: 0;
   font-family: Arial, Helvetica, sans-serif;
-
-  /* фон страницы как на оригинале: светлый центр + мелкий шум */
   background:
     radial-gradient(circle at 50% 25%, #ffffff 0%, #f2f2f2 45%, #e0e0e0 100%),
     url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.08'/%3E%3C/svg%3E");
 }
 
-/* ===== NAVBAR как на скрине ===== */
+/* NAVBAR */
 .topbar {
   height: 58px;
   background: linear-gradient(#4b4b4b, #2a2a2a);
   border-bottom: 1px solid rgba(0,0,0,0.55);
   box-shadow: 0 2px 8px rgba(0,0,0,0.35);
-
-  /* “шумная” текстура на баре */
   background-image:
     linear-gradient(#4b4b4b, #2a2a2a),
     url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.18'/%3E%3C/svg%3E");
   background-blend-mode: overlay;
 }
-
 .topbar-inner {
   max-width: 1020px;
   margin: 0 auto;
@@ -33,11 +27,11 @@ body {
   padding: 0 10px;
 }
 
-/* жёлтая плашка RandStuff слева */
+/* RandStuff yellow logo block */
 .brand {
   width: 128px;
   height: 74px;
-  margin-top: -16px; /* выступает вниз как в оригинале */
+  margin-top: -16px;
   background: linear-gradient(#ffd84a, #ffb100);
   border: 1px solid #b87900;
   border-top: 0;
@@ -51,7 +45,6 @@ body {
   position: relative;
   z-index: 5;
 }
-
 .brand-text {
   font-family: "Lobster", cursive;
   font-size: 30px;
@@ -67,8 +60,6 @@ body {
   margin-left: 18px;
   flex: 1;
 }
-
-/* пункты меню */
 .nav-item {
   width: 70px;
   text-decoration: none;
@@ -89,7 +80,7 @@ body {
 .nav-item:hover { color: #ffcc00; }
 .nav-item:hover .icon { color: #ffcc00; }
 
-/* кнопка админа справа — чтобы точно нажималась */
+/* Admin button */
 .admin-btn {
   background: transparent;
   border: 0;
@@ -99,24 +90,22 @@ body {
   padding: 6px 10px;
   border-radius: 6px;
   position: relative;
-  z-index: 20; /* поверх всего */
+  z-index: 20;
 }
 .admin-btn:hover { color: #ffcc00; }
 
-/* ===== MAIN ===== */
+/* MAIN */
 .main-wrap {
   max-width: 1020px;
   margin: 0 auto;
   padding: 40px 10px 80px;
   text-align: center;
 }
-
 .big-title {
   font-size: 30px;
   color: #111;
   margin: 22px 0 10px;
 }
-
 .big-number {
   font-size: 160px;
   line-height: 1;
@@ -124,12 +113,10 @@ body {
   color: #000;
   margin: 0 0 12px;
 }
-
 .small-links {
   margin: 6px 0 18px;
   font-size: 13px;
 }
-
 .link-red {
   color: #cc0000;
   text-decoration: none;
@@ -146,7 +133,6 @@ body {
   font-family: "Lobster", cursive;
   color: #161616;
   cursor: pointer;
-
   background: linear-gradient(#ffd84a, #ffb100);
   border: 1px solid #b87900;
   border-radius: 7px;
@@ -159,15 +145,8 @@ body {
 }
 .btn-generate:disabled { opacity: 0.65; cursor: not-allowed; }
 
-/* контролы */
-.controls {
-  margin-top: 14px;
-  font-size: 13px;
-  color: #333;
-}
-.range {
-  width: 260px;
-}
+.controls { margin-top: 14px; font-size: 13px; color: #333; }
+.range { width: 260px; }
 .input {
   width: 70px;
   border: 1px solid #c1c1c1;
@@ -178,7 +157,6 @@ body {
   text-align: center;
 }
 
-/* history блок */
 .history-box{
   max-width: 980px;
   margin: 40px auto 0;
@@ -189,7 +167,7 @@ body {
   padding: 16px;
 }
 
-/* ===== MODAL (Admin) ===== */
+/* MODAL */
 .modal-backdrop{
   position: fixed;
   inset: 0;
@@ -219,7 +197,6 @@ body {
   border-top-right-radius: 8px;
 }
 .modal-body{ padding: 14px 12px; }
-
 .field {
   width: 100%;
   border: 1px solid #c1c1c1;
@@ -227,7 +204,6 @@ body {
   padding: 10px 10px;
   box-shadow: inset 0 1px 2px rgba(0,0,0,0.12);
 }
-
 .small-btn{
   width: 100%;
   background: linear-gradient(#ffd84a, #ffb100);
@@ -247,7 +223,6 @@ body {
   font-weight: 700;
   cursor: pointer;
 }
-
 .alert{
   border: 1px solid #cc0000;
   background: #fff3f3;
@@ -255,4 +230,36 @@ body {
   padding: 8px 10px;
   border-radius: 6px;
   font-size: 13px;
+}
+
+/* ===== Mobile ===== */
+@media (max-width: 768px) {
+  .topbar { height: 56px; }
+  .topbar-inner { padding: 0 8px; gap: 10px; }
+  .brand { width: 105px; height: 66px; margin-top: -12px; }
+  .brand-text { font-size: 26px; }
+
+  .nav {
+    overflow-x: auto;
+    overflow-y: hidden;
+    gap: 14px;
+    margin-left: 10px;
+    padding-bottom: 2px;
+    -webkit-overflow-scrolling: touch;
+  }
+  .nav-item { width: 62px; flex: 0 0 auto; font-size: 10px; line-height: 11px; }
+  .nav-item .icon { font-size: 16px; margin-bottom: 4px; }
+
+  .main-wrap { padding: 24px 10px 60px; }
+  .big-title { font-size: 22px; }
+  .big-number { font-size: 100px; }
+  .btn-generate { width: 290px; font-size: 28px; padding: 12px 14px; }
+  .range { width: 240px; }
+}
+@media (max-width: 420px) {
+  .brand { width: 96px; height: 62px; }
+  .brand-text { font-size: 24px; }
+  .big-number { font-size: 88px; }
+  .btn-generate { width: 260px; font-size: 26px; }
+  .nav-item { width: 58px; }
 }
