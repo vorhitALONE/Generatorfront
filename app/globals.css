@@ -1,95 +1,200 @@
-/* === CSS 1:1 из архива (1-screen-1.html) === */
-
-/* Custom Noise Background */
-body {
-  background-color: #f0f0f0;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.08'/%3E%3C/svg%3E");
+/* ===== Base ===== */
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body{
+  margin:0;
   font-family: Arial, Helvetica, sans-serif;
+
+  /* как у RandStuff: светлый центр + шум */
+  background:
+    radial-gradient(circle at 50% 22%, #ffffff 0%, #f2f2f2 45%, #e2e2e2 100%),
+    url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.10'/%3E%3C/svg%3E");
 }
 
-/* Custom Scrollbar */
-::-webkit-scrollbar { width: 10px; }
-::-webkit-scrollbar-track { background: #f1f1f1; }
-::-webkit-scrollbar-thumb { background: #888; }
-::-webkit-scrollbar-thumb:hover { background: #555; }
-
-/* Header Gradient */
-.header-bg {
-  background: linear-gradient(to bottom, #3a3a3a 0%, #222222 100%);
-  box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+/* ===== Header (серый navbar как в оригинале) ===== */
+.header{
+  height: 58px;
+  background:
+    linear-gradient(#4b4b4b, #242424),
+    url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.18'/%3E%3C/svg%3E");
+  background-blend-mode: overlay;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.35);
+  border-bottom: 1px solid rgba(0,0,0,0.55);
+}
+.header__inner{
+  max-width: 1000px;
+  margin: 0 auto;
+  height: 100%;
+  display:flex;
+  align-items:center;
+  padding: 0 10px;
+  gap: 14px;
 }
 
-/* Logo Ribbon Effect */
-.logo-ribbon {
-  background: linear-gradient(to bottom, #ffcc00 0%, #ffaa00 100%);
-  box-shadow: 0 2px 4px rgba(0,0,0,0.4);
-  position: relative;
+/* Желтая плашка */
+.brand{
+  width: 124px;
+  height: 74px;
+  margin-top: -16px;
+  background: linear-gradient(#ffd84a, #ffb100);
+  border: 1px solid #b87900;
+  border-top: 0;
+  border-radius: 0 0 6px 6px;
+  box-shadow: 0 3px 0 rgba(0,0,0,0.35);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex-shrink: 0;
 }
-.logo-ribbon::after {
-  content: '';
-  position: absolute;
-  bottom: -5px;
-  left: 0;
-  width: 100%;
-  height: 5px;
-  background: rgba(0,0,0,0.15);
-}
-
-/* Button Shadow Effect */
-.btn-generate {
-  background: linear-gradient(to bottom, #ffcc00 0%, #ffaa00 100%);
-  border: 1px solid #a66b00;
-  box-shadow: 0 6px 0 #8a5600, 0 10px 15px rgba(0,0,0,0.25);
-  text-shadow: 0 1px 0 rgba(255,255,255,0.6);
-}
-.btn-generate:active {
-  transform: translateY(4px);
-  box-shadow: 0 2px 0 #8a5600, 0 6px 10px rgba(0,0,0,0.22);
+.brand__text{
+  font-family: "Lobster", cursive;
+  font-size: 30px;
+  color: #121212;
+  transform: rotate(-2deg);
+  user-select:none;
 }
 
-/* Slider */
-input[type=range] {
-  -webkit-appearance: none;
-  width: 100%;
-  height: 6px;
-  background: #bbb;
-  border-radius: 3px;
-  border: 1px solid #999;
-  box-shadow: inset 0 1px 2px rgba(0,0,0,0.2);
+/* Menu */
+.nav{
+  display:flex;
+  align-items:flex-start;
+  gap: 22px;
+  flex: 1;
+  min-width: 0; /* важно для mobile scroll */
 }
-
-/* Dashed Link */
-.link-dashed {
+.nav__item{
+  width: 72px;
   text-decoration: none;
-  border-bottom: 1px dashed #cc0000;
-  color: #cc0000;
+  color: #d8d8d8;
+  text-align:center;
+  user-select:none;
 }
-.link-dashed:hover {
-  border-bottom: 1px solid #cc0000;
+.nav__icon{
+  display:block;
+  font-size: 18px;
+  color: #d8d8d8;
+  margin-bottom: 6px;
+}
+.nav__label{
+  display:block;
+  font-size: 11px;
+  line-height: 12px;
+}
+.nav__item:hover .nav__icon,
+.nav__item:hover .nav__label{
+  color: #ffcc00;
+}
+.nav__item--active .nav__icon,
+.nav__item--active .nav__label{
+  color: #ffcc00;
 }
 
-/* Input Styling */
-.input-classic {
-  box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);
-  border: 1px solid #aaa;
-}
-
-/* Menu Item Hover */
-.menu-item:hover .menu-icon, .menu-item:hover .menu-text { color: #ffcc00; }
-.menu-item.active .menu-icon, .menu-item.active .menu-text { color: #ffcc00; }
-
-/* === ДОБАВЛЕНО: админ-модалка (не ломает пиксель-перфект) === */
-.admin-btn {
-  color: #ddd;
+/* Admin button (чтобы всегда нажималась) */
+.admin-btn{
+  border:0;
+  background: transparent;
+  color: #eaeaea;
   font-size: 12px;
-  padding: 4px 8px;
+  cursor:pointer;
+  padding: 6px 10px;
   border-radius: 6px;
+  z-index: 10;
+  white-space: nowrap;
 }
-.admin-btn:hover { color: #ffcc00; }
+.admin-btn:hover{ color:#ffcc00; }
 
+/* ===== Main ===== */
+.main{
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 44px 12px 80px;
+  text-align:center;
+}
+.title{
+  font-size: 30px;
+  color:#111;
+  margin: 18px 0 10px;
+}
+.number{
+  font-size: 160px;
+  line-height: 1;
+  font-weight: 500;
+  color:#000;
+  margin: 0 0 12px;
+}
+.links{
+  font-size: 13px;
+  margin: 6px 0 18px;
+}
+.link-red{
+  color:#cc0000;
+  text-decoration:none;
+  border-bottom: 1px dashed #cc0000;
+}
+.link-red:hover{ border-bottom-style: solid; }
+
+/* Button как RandStuff */
+.btn-generate{
+  width: 340px;
+  display:inline-block;
+  padding: 14px 18px;
+  font-size: 34px;
+  font-weight: 700;
+  font-family: "Lobster", cursive;
+  color:#161616;
+  cursor:pointer;
+
+  background: linear-gradient(#ffd84a, #ffb100);
+  border: 1px solid #b87900;
+  border-radius: 7px;
+  box-shadow: 0 7px 0 #8a5600, 0 12px 20px rgba(0,0,0,0.25);
+  text-shadow: 0 1px 0 rgba(255,255,255,0.7);
+}
+.btn-generate:active{
+  transform: translateY(4px);
+  box-shadow: 0 3px 0 #8a5600, 0 8px 14px rgba(0,0,0,0.22);
+}
+.btn-generate:disabled{ opacity: .65; cursor: not-allowed; }
+
+/* Controls block */
+.controls{
+  margin-top: 18px;
+  font-size: 13px;
+  color:#333;
+  display:flex;
+  flex-direction: column;
+  align-items:center;
+  gap: 10px;
+}
+.range{
+  width: 280px;
+}
+.row{
+  display:flex;
+  align-items:center;
+  gap: 10px;
+}
+.input{
+  width: 72px;
+  border: 1px solid #c1c1c1;
+  border-radius: 3px;
+  padding: 2px 6px;
+  background:#fff;
+  box-shadow: inset 0 1px 2px rgba(0,0,0,0.12);
+  text-align:center;
+}
+
+.checkbox{
+  display:flex;
+  align-items:center;
+  gap: 8px;
+  color:#555;
+}
+
+/* ===== Modal (Admin) ===== */
 .modal-backdrop{
-  position: fixed;
-  inset: 0;
+  position:fixed;
+  inset:0;
   background: rgba(0,0,0,0.45);
   display:flex;
   align-items:center;
@@ -100,77 +205,77 @@ input[type=range] {
 .modal{
   width: 100%;
   max-width: 560px;
-  background: #fff;
+  background:#fff;
   border: 1px solid #999;
   box-shadow: 0 12px 40px rgba(0,0,0,0.35);
   border-radius: 8px;
-  overflow: hidden;
+  overflow:hidden;
 }
-.modal-header{
-  background: linear-gradient(to bottom, #3a3a3a 0%, #222222 100%);
-  color: #fff;
+.modal__header{
+  background: linear-gradient(#4b4b4b, #242424);
+  color:#fff;
   padding: 10px 12px;
   display:flex;
   align-items:center;
   justify-content:space-between;
 }
-.modal-body{ padding: 14px 12px; }
+.modal__body{ padding: 14px 12px; }
 .field{
   width: 100%;
-  border: 1px solid #aaa;
+  border:1px solid #aaa;
   border-radius: 4px;
-  padding: 10px 10px;
+  padding: 10px;
   box-shadow: inset 0 1px 2px rgba(0,0,0,0.12);
 }
 .small-btn{
   width: 100%;
-  background: linear-gradient(to bottom, #ffcc00 0%, #ffaa00 100%);
-  border: 1px solid #a66b00;
+  background: linear-gradient(#ffd84a, #ffb100);
+  border:1px solid #b87900;
   padding: 10px 12px;
   border-radius: 6px;
   font-weight: 700;
-  color: #222;
-  cursor: pointer;
-}
-.danger-btn{
-  background: #d22;
-  border: 1px solid #a00;
-  color: #fff;
-  padding: 7px 10px;
-  border-radius: 6px;
-  font-weight: 700;
-  cursor: pointer;
+  color:#222;
+  cursor:pointer;
 }
 .alert{
-  border: 1px solid #cc0000;
-  background: #fff3f3;
-  color: #990000;
+  border:1px solid #cc0000;
+  background:#fff3f3;
+  color:#990000;
   padding: 8px 10px;
   border-radius: 6px;
   font-size: 13px;
+  margin-top: 10px;
 }
 
-/* === ДОБАВЛЕНО: адаптация под телефон (не ломаем десктоп) === */
-@media (max-width: 768px) {
-  #header-main { height: auto !important; }
-  #header-main .max-w-\[980px\] { padding: 0 8px; }
+/* ===== Mobile адаптация (реально работает без Tailwind) ===== */
+@media (max-width: 768px){
+  .header__inner{ padding: 0 8px; gap: 10px; }
+  .brand{ width: 104px; height: 66px; margin-top: -12px; }
+  .brand__text{ font-size: 26px; }
 
-  /* nav уезжает в горизонтальный скролл */
-  #header-main nav {
-    overflow-x: auto;
-    gap: 18px !important;
-    padding-right: 6px;
+  /* меню уходит в горизонтальный скролл */
+  .nav{
+    overflow-x:auto;
+    overflow-y:hidden;
     -webkit-overflow-scrolling: touch;
+    gap: 14px;
+    padding-bottom: 2px;
   }
-  #header-main nav::-webkit-scrollbar { height: 6px; }
-  #header-main nav::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.25); border-radius: 99px; }
+  .nav::-webkit-scrollbar{ height: 6px; }
+  .nav::-webkit-scrollbar-thumb{ background: rgba(255,255,255,0.25); border-radius: 99px; }
 
-  /* цифру поменьше */
-  #main-content .text-\[160px\] { font-size: 96px !important; }
+  .nav__item{ width: 62px; flex: 0 0 auto; }
+  .nav__icon{ font-size: 16px; margin-bottom: 4px; }
+  .nav__label{ font-size: 10px; line-height: 11px; }
 
-  /* кнопка по ширине */
-  .btn-generate { width: min(340px, 92vw) !important; }
+  .main{ padding: 26px 10px 60px; }
+  .title{ font-size: 22px; }
+  .number{ font-size: 96px; }
+  .btn-generate{ width: min(340px, 92vw); font-size: 28px; }
+  .range{ width: 240px; }
+}
 
-  /* блоки */
-  #main-content { padding-left: 10px; padding-right: 10px; }
+@media (max-width: 420px){
+  .number{ font-size: 86px; }
+  .btn-generate{ font-size: 26px; }
 }
