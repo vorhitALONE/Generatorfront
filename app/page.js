@@ -96,7 +96,20 @@ export default function Page() {
             </a>
           </nav>
 
-          <button className="admin-btn" type="button" onClick={() => setShowAdmin(true)}>
+<button
+  className="admin-btn"
+  type="button"
+  onClickCapture={(e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setShowAdmin(true);
+  }}
+  onClick={(e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setShowAdmin(true);
+  }}
+>
             <i className="fa-solid fa-user-gear" style={{ marginRight: 6 }}></i>
             Админ
           </button>
