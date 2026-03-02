@@ -10,7 +10,6 @@ export default function Page() {
   const [showAdmin, setShowAdmin] = useState(false);
   const [error, setError] = useState(null);
 
-  // controls (визуально как у оригинала)
   const [seqCount, setSeqCount] = useState(1);
   const [sourceMode, setSourceMode] = useState("range");
   const [from, setFrom] = useState("1");
@@ -19,9 +18,7 @@ export default function Page() {
   const shown = useMemo(() => String(value ?? 21), [value]);
 
   useEffect(() => {
-    // если API_URL не задан — работаем как “демо”
     if (!API_URL) return;
-
     (async () => {
       try {
         const r = await fetch(`${API_URL}/api/active`, { cache: "no-store" });
@@ -36,11 +33,9 @@ export default function Page() {
     setError(null);
     try {
       if (!API_URL) {
-        // демо-режим без бекенда
         setValue(Math.floor(Math.random() * 100) + 1);
         return;
       }
-
       const r = await fetch(`${API_URL}/api/generate`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -51,7 +46,6 @@ export default function Page() {
           rangeTo: to,
         }),
       });
-
       const d = await r.json();
       if (!r.ok) throw new Error(d?.error || "Ошибка генерации");
       setValue(d.value);
@@ -136,22 +130,12 @@ export default function Page() {
 
           <div className="row">
             <label className="row" style={{ gap: 6 }}>
-              <input
-                type="radio"
-                checked={sourceMode === "range"}
-                onChange={() => setSourceMode("range")}
-              />
+              <input type="radio" checked={sourceMode === "range"} onChange={() => setSourceMode("range")} />
               <span>из диапазона</span>
             </label>
-
             <span style={{ color: "#888" }}>или</span>
-
             <label className="row" style={{ gap: 6 }}>
-              <input
-                type="radio"
-                checked={sourceMode === "list"}
-                onChange={() => setSourceMode("list")}
-              />
+              <input type="radio" checked={sourceMode === "list"} onChange={() => setSourceMode("list")} />
               <span>из списка</span>
             </label>
           </div>
@@ -190,7 +174,7 @@ export default function Page() {
             </div>
             <div className="modal__body">
               <div style={{ fontSize: 13, color: "#666", marginBottom: 10 }}>
-                (Подключение логина к бекенду включится, когда задашь NEXT_PUBLIC_API_URL)
+                (Логин к бекенду включится, когда задашь NEXT_PUBLIC_API_URL)
               </div>
               <input className="field" placeholder="Логин" />
               <div style={{ height: 10 }} />
