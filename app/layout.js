@@ -22,6 +22,7 @@ body{
   background-blend-mode:overlay;
   box-shadow:0 2px 8px rgba(0,0,0,.35);
   border-bottom:1px solid rgba(0,0,0,.55);
+  position: relative; z-index: 100;
 }
 .header__inner{
   max-width:1000px;
@@ -31,6 +32,8 @@ body{
   align-items:center;
   gap:14px;
   padding:0 10px;
+  position: relative; 
+  z-index: 101;
 }
 
 /* BRAND */
@@ -63,6 +66,8 @@ body{
   gap:22px;
   flex:1;
   min-width:0;
+  position: relative; 
+  z-index: 1;
 }
 .nav__item{
   width:72px;
@@ -97,6 +102,9 @@ body{
   padding:6px 10px;
   border-radius:6px;
   white-space:nowrap;
+  position: relative;
+  z-index: 9999;
+  pointer-events: auto;
 }
 .admin-btn:hover{color:#ffcc00}
 
